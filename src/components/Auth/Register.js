@@ -1,5 +1,8 @@
-import React, { useState } from "react";
-import { useSignupForm } from "../CustomHooks/forms";
+import React from "react";
+import { useSignupForm } from "../../CustomHooks/forms";
+import checkValidity from "./CheckValidity";
+import axios from "../../axios";
+import classes from "./Auth.module.css";
 
 import {
   Button,
@@ -13,12 +16,33 @@ import {
 import { Link } from "react-router-dom";
 
 const Register = () => {
-  const { input, inputChangeHandler } = useSignupForm({
-    userName: "",
-    email: "",
-    password: "",
-    confirmPassword: ""
-  });
+  //for Signup new User
+  const signup = () => {
+    const authData = {
+      email: input.email,
+      password: input.password,
+      returnSecureToken: true
+    };
+    axios
+      .post(
+        "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyAiwB45z0-ipLLCp7f1DHUz9xVv08UmRDo",
+        authData
+      )
+      .then(response => console.log(response.data))
+      .catch(error => console.log(error));
+  };
+
+  //passs initial form values and callback function for submit Handler
+  const { input, inputChangeHandler, submitHandler, errors } = useSignupForm(
+    {
+      userName: "",
+      email: "",
+      password: "",
+      confirmPassword: ""
+    },
+    signup,
+    checkValidity
+  );
 
   return (
     <Grid centered verticalAlign="middle" className="app">
@@ -28,7 +52,7 @@ const Register = () => {
           Register for Dev Chat
         </Header>
         <Segment>
-          <Form size="large">
+          <Form size="large" onSubmit={submitHandler}>
             <Form.Input
               fluid
               icon="user"
@@ -39,6 +63,9 @@ const Register = () => {
               value={input.userName}
               onChange={inputChangeHandler}
             />
+            {errors.userName && (
+              <p className={classes.error}>{errors.userName}</p>
+            )}
             <Form.Input
               fluid
               icon="mail"
@@ -49,6 +76,9 @@ const Register = () => {
               value={input.email}
               onChange={inputChangeHandler}
             />
+            {errors.email ? (
+              <p className={classes.error}>{errors.email}</p>
+            ) : null}
             <Form.Input
               fluid
               icon="lock"
@@ -59,6 +89,9 @@ const Register = () => {
               value={input.password}
               onChange={inputChangeHandler}
             />
+            {errors.password && (
+              <p className={classes.error}>{errors.password}</p>
+            )}
             <Form.Input
               fluid
               icon="repeat"
@@ -69,11 +102,15 @@ const Register = () => {
               value={input.confirmPassword}
               onChange={inputChangeHandler}
             />
+            {errors.confirmPassword && (
+              <p className={classes.error}>{errors.confirmPassword}</p>
+            )}
             <Button color="orange" fluid size="large">
-              Login
+              Sign Up
             </Button>
           </Form>
         </Segment>
+
         <Message>
           Already Registerd? <Link to="/login">Login</Link>
         </Message>

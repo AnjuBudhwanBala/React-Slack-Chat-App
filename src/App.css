@@ -5,3 +5,6 @@ body,
   height: 100vh;
   padding: 1em;
 }
+.app.error {
+  color: red;
+}
