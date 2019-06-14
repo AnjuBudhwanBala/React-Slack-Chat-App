@@ -1,7 +1,7 @@
 import React from "react";
 import { useSignupForm } from "../../CustomHooks/forms";
 import checkValidity from "./CheckValidity";
-import axios from "../../axios";
+
 import classes from "./Auth.module.css";
 
 import {
@@ -16,33 +16,46 @@ import {
 import { Link } from "react-router-dom";
 
 const Register = () => {
-  //for Signup new User
-  const signup = () => {
-    const authData = {
-      email: input.email,
-      password: input.password,
-      returnSecureToken: true
-    };
-    axios
-      .post(
-        "https://www.googleapis.com/identitytoolkit/v3/relyingparty/signupNewUser?key=AIzaSyAiwB45z0-ipLLCp7f1DHUz9xVv08UmRDo",
-        authData
-      )
-      .then(response => console.log(response.data))
-      .catch(error => console.log(error));
-  };
-
   //passs initial form values and callback function for submit Handler
-  const { input, inputChangeHandler, submitHandler, errors } = useSignupForm(
+  const {
+    input,
+    inputChangeHandler,
+    submitHandler,
+    errors,
+    errorMessage
+  } = useSignupForm(
     {
       userName: "",
       email: "",
       password: "",
       confirmPassword: ""
     },
-    signup,
     checkValidity
   );
+
+  // let errortxt = null;
+  // if (errorMessage) {
+  //   errortxt = errorMessage;
+  // } else if (errors.email) {
+  //   errortxt = errors.email;
+  // }
+
+  let message = null;
+  if (errors.confirmPassword) {
+    message = <Message error>{errors.confirmPassword}</Message>;
+  }
+  if (errors.password) {
+    message = <Message error>{errors.password}</Message>;
+  }
+  if (errors.email) {
+    message = <Message error>{errors.email}</Message>;
+  }
+  if (errors.userName) {
+    message = <Message error>{errors.userName}</Message>;
+  }
+  if (errorMessage) {
+    message = <Message error>{errorMessage}</Message>;
+  }
 
   return (
     <Grid centered verticalAlign="middle" className="app">
@@ -51,6 +64,7 @@ const Register = () => {
           <Icon color="orange" name="puzzle piece" />
           Register for Dev Chat
         </Header>
+        {message}
         <Segment>
           <Form size="large" onSubmit={submitHandler}>
             <Form.Input
@@ -63,9 +77,7 @@ const Register = () => {
               value={input.userName}
               onChange={inputChangeHandler}
             />
-            {errors.userName && (
-              <p className={classes.error}>{errors.userName}</p>
-            )}
+
             <Form.Input
               fluid
               icon="mail"
@@ -76,9 +88,7 @@ const Register = () => {
               value={input.email}
               onChange={inputChangeHandler}
             />
-            {errors.email ? (
-              <p className={classes.error}>{errors.email}</p>
-            ) : null}
+
             <Form.Input
               fluid
               icon="lock"
@@ -89,9 +99,7 @@ const Register = () => {
               value={input.password}
               onChange={inputChangeHandler}
             />
-            {errors.password && (
-              <p className={classes.error}>{errors.password}</p>
-            )}
+
             <Form.Input
               fluid
               icon="repeat"
@@ -102,9 +110,7 @@ const Register = () => {
               value={input.confirmPassword}
               onChange={inputChangeHandler}
             />
-            {errors.confirmPassword && (
-              <p className={classes.error}>{errors.confirmPassword}</p>
-            )}
+
             <Button color="orange" fluid size="large">
               Sign Up
             </Button>

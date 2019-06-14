@@ -3,7 +3,9 @@ const CheckValidity = input => {
   if (!input.userName) {
     errors.userName = "UserName is Required";
   }
-  if (!/\S+@\S+\.\S+/.test(input.email)) {
+  if (!input.email) {
+    errors.email = "Email address is required";
+  } else if (!/\S+@\S+\.\S+/.test(input.email)) {
     errors.email = "Email address is invalid";
   }
   if (!input.password) {
