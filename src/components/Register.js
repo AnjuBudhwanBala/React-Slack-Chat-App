@@ -1,9 +1,6 @@
-import React from "react";
-import { useSignupForm } from "../../CustomHooks/forms";
-import checkValidity from "./CheckValidity";
-
-import classes from "./Auth.module.css";
-
+import React, { useState } from "react";
+import useForm from "../CustomHooks/form";
+import firebase from "../firebase";
 import {
   Button,
   Form,
@@ -13,48 +10,73 @@ import {
   Segment,
   Icon
 } from "semantic-ui-react";
+import "semantic-ui-css/semantic.min.css";
 import { Link } from "react-router-dom";
 
 const Register = () => {
+  const [submitError, setSubmitError] = useState("");
+  const initialValues = {
+    userName: "",
+    email: "",
+    password: "",
+    confirmPassword: ""
+  };
+
+  //firebase auth for register new User
+  const signup = () => {
+    firebase
+      .auth()
+      .createUserWithEmailAndPassword(input.email, input.password)
+      .then(createdUser => {
+        setSubmitError("");
+        console.log(createdUser);
+        return createdUser;
+      })
+      .then(createdUser => {
+        createdUser.user.updateProfile({
+          displayName: input.userName,
+          photoURL: `https://www.gravatar.com/avatar/{md5(createdUser.user.email)}?d=identicon`
+        });
+        return createdUser;
+      })
+      .then(createdUser => {
+        firebase
+          .database()
+          .ref("users")
+          .child(createdUser.user.uid)
+          .set({
+            displayName: input.userName,
+            photoURL: `https://www.gravatar.com/avatar/{md5(createdUser.user.email)}?d=identicon`
+          });
+      })
+      .catch(error => {
+        console.log(error.message);
+        setSubmitError(error.code);
+        //setLoading(false);
+      });
+  };
   //passs initial form values and callback function for submit Handler
-  const {
-    input,
-    inputChangeHandler,
-    submitHandler,
-    errors,
-    errorMessage
-  } = useSignupForm(
-    {
-      userName: "",
-      email: "",
-      password: "",
-      confirmPassword: ""
-    },
-    checkValidity
+  const { input, inputChangeHandler, submitHandler, errors } = useForm(
+    initialValues,
+    signup
   );
 
-  // let errortxt = null;
-  // if (errorMessage) {
-  //   errortxt = errorMessage;
-  // } else if (errors.email) {
-  //   errortxt = errors.email;
-  // }
-
-  let message = null;
+  //Error messages on submit
+  let errorMessage = null;
   if (errors.confirmPassword) {
-    message = <Message error>{errors.confirmPassword}</Message>;
+    errorMessage = <Message error>{errors.confirmPassword}</Message>;
   }
   if (errors.password) {
-    message = <Message error>{errors.password}</Message>;
+    errorMessage = <Message error>{errors.password}</Message>;
   }
   if (errors.email) {
-    message = <Message error>{errors.email}</Message>;
+    errorMessage = <Message error>{errors.email}</Message>;
   }
   if (errors.userName) {
-    message = <Message error>{errors.userName}</Message>;
+    errorMessage = <Message error>{errors.userName}</Message>;
   }
-  if (errorMessage) {
-    message = <Message error>{errorMessage}</Message>;
+  if (submitError) {
+    errorMessage = <Message error>{submitError}</Message>;
   }
 
   return (
@@ -64,8 +86,8 @@ const Register = () => {
           <Icon color="orange" name="puzzle piece" />
           Register for Dev Chat
         </Header>
-        {message}
-        <Segment>
+        {errorMessage}
+        <Segment stacked>
           <Form size="large" onSubmit={submitHandler}>
             <Form.Input
               fluid
