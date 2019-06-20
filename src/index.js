@@ -1,14 +1,9 @@
-import React, { useEffect } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
-import "semantic-ui-css/semantic.min.css";
 import App from "./App";
-import firebase from "firebase";
-import { BrowserRouter, Switch, Route, withRouter } from "react-router-dom";
-import Login from "./components/Login";
-import Register from "./components/Register";
+import { BrowserRouter } from "react-router-dom";
 import { createStore } from "redux";
 import { Provider } from "react-redux";
-
 import rootReducer from "./store/reducers";
 
 const store = createStore(
@@ -16,30 +11,12 @@ const store = createStore(
   window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__()
 );
 
-const Root = props => {
-  useEffect(() => {
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        props.history.push("/");
-      }
-    });
-  }, []);
-  return (
-    <Switch>
-      <Route exact path="/" component={App} />
-      <Route path="/login" component={Login} />
-      <Route path="/register" component={Register} />
-    </Switch>
-  );
-};
-
-const RootWithAuth = withRouter(Root);
-
-ReactDOM.render(
+const app = (
   <Provider store={store}>
     <BrowserRouter>
-      <RootWithAuth />{" "}
+      <App />
     </BrowserRouter>
-  </Provider>,
-  document.getElementById("root")
+  </Provider>
 );
+
+ReactDOM.render(app, document.getElementById("root"));
