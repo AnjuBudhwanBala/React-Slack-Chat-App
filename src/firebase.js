@@ -7,7 +7,7 @@ var firebaseConfig = {
   authDomain: "react-chat-app-20517.firebaseapp.com",
   databaseURL: "https://react-chat-app-20517.firebaseio.com",
   projectId: "react-chat-app-20517",
-  storageBucket: "",
+  storageBucket: "react-chat-app-20517.appspot.com",
   messagingSenderId: "437258096120",
   appId: "1:437258096120:web:543c0541fabaddc9"
 };
