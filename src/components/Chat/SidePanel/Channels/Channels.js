@@ -1,32 +1,31 @@
-
 import React, { useState, useEffect } from "react";
-import {
-  Menu,
-  Icon,
-  Modal,
-  Form,
-  Input,
-  Button,
-  Message
-} from "semantic-ui-react";
+import { Menu, Icon, Modal, Form, Input, Button } from "semantic-ui-react";
 import firebase from "../../../../firebase";
 import { useSelector } from "react-redux";
 
 const Channels = props => {
-  // const [submitting, setSubmitting] = useState(false);
-  // const [errors, setErrors] = useState({});
   const [channels, setChannels] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [modalInput, setModalInput] = useState({
+  const initialModalState = {
     channelName: "",
     channelDetails: ""
-  });
+  };
+  const [modalInput, setModalInput] = useState(initialModalState);
 
-  const userID = useSelector(state => state.user.currentUser.uid);
+  const signedInUser = useSelector(state => state.user.currentUser);
 
-  const userName = useSelector(state => state.user.currentUser.displayName);
-  const userPhoto = useSelector(state => state.user.currentUser.photoURL);
+  useEffect(() => {
+    const loadedChannels = [];
+    firebase
+      .database()
+      .ref("channels")
+      .on("child_added", snap => {
+        loadedChannels.push(snap.val());
+        setChannels(loadedChannels);
+      });
+  }, []);
 
+  console.log(channels);
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -41,33 +40,60 @@ const Channels = props => {
     setModalInput(input => ({ ...input, [name]: value }));
   };
 
-  const addChannels = () => {
-    closeModal();
-    setModalInput({});
+  const addChannel = () => {
+    //to generate unique id for every user
+    const key = firebase
+      .database()
+      .ref("channels")
+      .push().key;
+
+    const newChannel = {
+      id: key,
+      name: modalInput.channelName,
+      details: modalInput.channelDetails,
+      createdBy: {
+        name: signedInUser.displayName,
+        avatar: signedInUser.photoURL
+      }
+    };
+    firebase
+      .database()
+      .ref("channels")
+      .child(key)
+      .update(newChannel)
+      .then(response => {
+        closeModal();
+        setModalInput(initialModalState);
+      })
+      .catch(error => console.log(error));
   };
   const handleSubmit = e => {
     e.preventDefault();
-    console.log(modalInput.channelName, modalInput.channelDetails);
-    if (modalInput.channelName !== "" && modalInput.channelDetails !== "") {
-      addChannels();
+
+    if (modalInput) {
+      if (modalInput.channelName !== "" && modalInput.channelDetails !== "") {
+        return addChannel();
+      }
     }
+
+    return false;
   };
 
-  // let displayChannel = null;
-  //
-  // if (channels.length > 0) {
-  //   displayChannel = channels.map(channel => {
-  //     return (
-  //       <Menu.Item
-  //         key={channel.id}
-  //         name={channel.name}
-  //         style={{ opacity: 0.7 }}
-  //       >
-  //         #{channel.name}
-  //       </Menu.Item>
-  //     );
-  //   });
-  // }
+  let displayChannel = null;
+
+  if (channels.length > 0) {
+    displayChannel = channels.map(channel => {
+      return (
+        <Menu.Item
+          key={channel.id}
+          name={channel.name}
+          style={{ opacity: 0.7 }}
+        >
+          #{channel.name}
+        </Menu.Item>
+      );
+    });
+  }
 
   return (
     <>
@@ -118,7 +144,6 @@ const Channels = props => {
         </Modal.Actions>
       </Modal>
     </>
-
   );
 };
 
