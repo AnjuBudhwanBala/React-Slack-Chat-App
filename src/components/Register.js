@@ -12,9 +12,10 @@ import {
 } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
 import { Link } from "react-router-dom";
-import { withRouter } from "react-router-dom";
 
-const Register = props => {
+
+const Register = () => {
+
   const [submitError, setSubmitError] = useState("");
   const initialValues = {
     userName: "",
@@ -49,7 +50,7 @@ const Register = props => {
             displayName: input.userName,
             photoURL: `https://www.gravatar.com/avatar/{md5(createdUser.user.email)}?d=identicon`
           });
-        props.history.push("/login");
+
       })
       .catch(error => {
         console.log(error.message);
@@ -149,4 +150,6 @@ const Register = props => {
   );
 };
 
-export default withRouter(Register);
+
+export default Register;
+
