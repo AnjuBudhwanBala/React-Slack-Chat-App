@@ -28,7 +28,7 @@ const useSignupForm = (initialValues, callback) => {
         callback();
       }
     },
-    [submitting, errors]
+    [errors, submitting]
   );
 
   return {

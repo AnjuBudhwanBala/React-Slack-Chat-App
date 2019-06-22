@@ -11,9 +11,10 @@ import {
   Icon
 } from "semantic-ui-react";
 import "semantic-ui-css/semantic.min.css";
-import { Link, withRouter } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 
-const Register = () => {
+const Register = props => {
   const [submitError, setSubmitError] = useState("");
   const initialValues = {
     userName: "",
@@ -28,8 +29,27 @@ const Register = () => {
       .auth()
       .createUserWithEmailAndPassword(input.email, input.password)
       .then(createdUser => {
-        console.log(createdUser);
         setSubmitError("");
+        console.log(createdUser);
+        return createdUser;
+      })
+      .then(createdUser => {
+        createdUser.user.updateProfile({
+          displayName: input.userName,
+          photoURL: `https://www.gravatar.com/avatar/{md5(createdUser.user.email)}?d=identicon`
+        });
+        return createdUser;
+      })
+      .then(createdUser => {
+        firebase
+          .database()
+          .ref("users")
+          .child(createdUser.user.uid)
+          .set({
+            displayName: input.userName,
+            photoURL: `https://www.gravatar.com/avatar/{md5(createdUser.user.email)}?d=identicon`
+          });
+        props.history.push("/login");
       })
       .catch(error => {
         console.log(error.message);
@@ -70,7 +90,7 @@ const Register = () => {
         </Header>
         {errorMessage}
         <Segment stacked>
-          <Form size="large" onSubmit={submitHandler} autoComplete="off">
+          <Form size="large" onSubmit={submitHandler}>
             <Form.Input
               fluid
               icon="user"

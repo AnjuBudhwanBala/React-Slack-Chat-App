@@ -62,7 +62,7 @@ const Login = () => {
         </Header>
         {errorMessage}
         <Segment stacked>
-          <Form size="large" onSubmit={submitHandler} autoComplete="none">
+          <Form size="large" onSubmit={submitHandler} autoComplete="off">
             <Form.Input
               fluid
               icon="mail"
@@ -72,7 +72,6 @@ const Login = () => {
               name="email"
               value={input.email}
               onChange={inputChangeHandler}
-              autoComplete="email"
             />
             <Form.Input
               fluid
@@ -83,7 +82,6 @@ const Login = () => {
               name="password"
               value={input.password}
               onChange={inputChangeHandler}
-              autoComplete="password"
             />
             <Button color="violet" fluid size="large">
               Sign In

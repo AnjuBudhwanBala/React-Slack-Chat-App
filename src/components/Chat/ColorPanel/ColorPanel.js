@@ -1,7 +1,7 @@
 import React from "react";
 
 const ColorPanel = () => {
-  return <div>ColorPanel</div>;
+  return <>ColorPanel</>;
 };
 
 export default ColorPanel;

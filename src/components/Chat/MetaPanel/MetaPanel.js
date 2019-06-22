@@ -1,7 +1,7 @@
 import React from "react";
 
 const MetaPanel = () => {
-  return <div>MetaPanel</div>;
+  return <>MetaPanel</>;
 };
 
 export default MetaPanel;
