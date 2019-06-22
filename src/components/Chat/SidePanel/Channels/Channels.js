@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import {
   Menu,
@@ -117,6 +118,7 @@ const Channels = props => {
         </Modal.Actions>
       </Modal>
     </>
+
   );
 };
 
