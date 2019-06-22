@@ -4,6 +4,7 @@ import firebase from "../../../../firebase";
 import { useSelector } from "react-redux";
 
 const UserPanel = () => {
+
   const signedInUserName = useSelector(
     state => state.user.currentUser.displayName
   );
@@ -62,6 +63,7 @@ const UserPanel = () => {
       </Grid.Column>
     </Grid>
   );
+
 };
 
 export default UserPanel;
