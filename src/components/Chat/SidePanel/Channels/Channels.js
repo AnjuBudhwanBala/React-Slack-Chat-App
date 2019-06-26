@@ -14,18 +14,23 @@ const Channels = props => {
 
   const signedInUser = useSelector(state => state.user.currentUser);
 
-  useEffect(() => {
-    const loadedChannels = [];
-    firebase
+  async function fetchMyAPI() {
+    let loadedChannels = [];
+    await firebase
       .database()
       .ref("channels")
       .on("child_added", snap => {
         loadedChannels.push(snap.val());
         setChannels(loadedChannels);
       });
+  }
+
+  //useEffect
+
+  useEffect(() => {
+    fetchMyAPI();
   }, []);
 
-  console.log(channels);
   const closeModal = () => {
     setIsModalOpen(false);
   };
@@ -60,7 +65,7 @@ const Channels = props => {
       .database()
       .ref("channels")
       .child(key)
-      .update(newChannel)
+      .set(newChannel)
       .then(response => {
         closeModal();
         setModalInput(initialModalState);
@@ -103,9 +108,10 @@ const Channels = props => {
             <Icon name="exchange" />
             CHANNELS(
           </span>
-          {channels.length} )
+          {channels.length})
           <Icon name="add" onClick={openModal} />
         </Menu.Item>
+        {displayChannel}
       </Menu.Menu>
       {/* Add Channel Modal */}
       <Modal basic open={isModalOpen} onClose={closeModal}>
