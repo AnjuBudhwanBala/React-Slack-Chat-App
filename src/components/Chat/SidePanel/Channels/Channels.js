@@ -1,48 +1,66 @@
 import React, { useState, useEffect } from "react";
 import { Menu, Icon, Modal, Form, Input, Button } from "semantic-ui-react";
-import firebase from "../../../../firebase";
-import { useSelector } from "react-redux";
+import firebase from "firebase/app";
+import { useSelector, useDispatch } from "react-redux";
+import * as actionTypes from "../../../../store/actionTypes/actionTypes";
 
 const Channels = props => {
   const [channels, setChannels] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [firstLoad, setFirstLoad] = useState(false);
+  const signedInUser = useSelector(state => state.user.currentUser);
   const initialModalState = {
     channelName: "",
     channelDetails: ""
   };
+
   const [modalInput, setModalInput] = useState(initialModalState);
+  const dispatch = useDispatch();
 
-  const signedInUser = useSelector(state => state.user.currentUser);
-
-  async function fetchMyAPI() {
+  useEffect(() => {
     let loadedChannels = [];
-    await firebase
+    firebase
       .database()
       .ref("channels")
       .on("child_added", snap => {
         loadedChannels.push(snap.val());
-        setChannels(loadedChannels);
+        setChannels(channels.concat(loadedChannels));
+        setFirstLoad(true);
       });
-  }
-
-  //useEffect
-
-  useEffect(() => {
-    fetchMyAPI();
   }, []);
 
-  const closeModal = () => {
-    setIsModalOpen(false);
+  //setCurrent Channel
+  const setCurrentChannel = channel => {
+    dispatch({
+      type: actionTypes.SET_CURRENT_CHANNEL,
+      currentChannel: channel
+    });
+  };
+
+  useEffect(
+    () => {
+      //set First channel onLoad
+
+      if (firstLoad && channels.length > 0) {
+        const firstChannel = channels[0];
+        setCurrentChannel(firstChannel);
+      }
+    },
+    [firstLoad]
+  );
+
+  const handleChange = e => {
+    const name = e.target.name;
+    const value = e.target.value;
+    setModalInput(input => ({ ...input, [name]: value }));
   };
 
   const openModal = () => {
     setIsModalOpen(true);
   };
-  const handleChange = e => {
-    e.preventDefault();
-    const name = e.target.name;
-    const value = e.target.value;
-    setModalInput(input => ({ ...input, [name]: value }));
+
+  const closeModal = () => {
+    setIsModalOpen(false);
   };
 
   const addChannel = () => {
@@ -72,9 +90,9 @@ const Channels = props => {
       })
       .catch(error => console.log(error));
   };
+
   const handleSubmit = e => {
     e.preventDefault();
-
     if (modalInput) {
       if (modalInput.channelName !== "" && modalInput.channelDetails !== "") {
         return addChannel();
@@ -84,8 +102,8 @@ const Channels = props => {
     return false;
   };
 
+  //display channelList
   let displayChannel = null;
-
   if (channels.length > 0) {
     displayChannel = channels.map(channel => {
       return (
@@ -93,6 +111,7 @@ const Channels = props => {
           key={channel.id}
           name={channel.name}
           style={{ opacity: 0.7 }}
+          onClick={() => setCurrentChannel(channel)}
         >
           #{channel.name}
         </Menu.Item>

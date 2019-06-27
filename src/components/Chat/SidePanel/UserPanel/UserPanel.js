@@ -1,6 +1,6 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Header, Grid, Icon, Dropdown, Image } from "semantic-ui-react";
-import firebase from "../../../../firebase";
+import firebase from "firebase/app";
 import { useSelector } from "react-redux";
 
 const UserPanel = () => {
