@@ -1,17 +1,18 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { Header, Grid, Icon, Dropdown, Image } from "semantic-ui-react";
-import firebase from "../../../../firebase";
+import firebase from "firebase/app";
 import { useSelector } from "react-redux";
 
 const UserPanel = () => {
-  const name = useSelector(state => state.user.currentUser);
+  const signedInUser = useSelector(state => state.user.currentUser);
 
   const dropdownOptions = () => [
     {
       key: "user",
       text: (
         <span>
-          Signed in as <strong>{name ? name.displayName : null}</strong>
+          Signed in as{" "}
+          <strong>{signedInUser ? signedInUser.displayName : null}</strong>
         </span>
       ),
       disabled: true
@@ -47,11 +48,11 @@ const UserPanel = () => {
               trigger={
                 <span>
                   <Image
-                    src={name ? name.photoURL : null}
+                    src={signedInUser ? signedInUser.photoURL : null}
                     spaced="right"
                     avatar
                   />
-                  {name ? name.displayName : null}
+                  {signedInUser ? signedInUser.displayName : null}
                 </span>
               }
               options={dropdownOptions()}

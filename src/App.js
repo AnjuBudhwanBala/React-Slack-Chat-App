@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import firebase from "firebase";
+import firebase from "firebase/app";
 import { Switch, Route, withRouter } from "react-router-dom";
 import Chat from "./components/Chat/Chat";
 import Login from "./components/Login";
