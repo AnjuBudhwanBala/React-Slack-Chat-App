@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { CheckValidity } from "../components/CheckValidity/CheckValidity";
 
 const useSignupForm = (initialValues, callback) => {
@@ -22,13 +22,21 @@ const useSignupForm = (initialValues, callback) => {
     setSubmitting(true);
   };
 
+  const auth = useCallback(
+    () => {
+      callback();
+    },
+    [callback]
+  );
+
   useEffect(
     () => {
       if (Object.keys(errors).length === 0 && submitting) {
-        callback();
+        auth();
       }
+      return () => setSubmitting(false);
     },
-    [errors, submitting]
+    [errors, submitting, auth]
   );
 
   return {
