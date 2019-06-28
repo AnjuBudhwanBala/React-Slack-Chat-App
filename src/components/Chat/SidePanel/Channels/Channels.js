@@ -8,6 +8,7 @@ const Channels = props => {
   const [channels, setChannels] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [firstLoad, setFirstLoad] = useState(true);
+  const [activeChannelId, setActiveChannelId] = useState("");
   const signedInUser = useSelector(state => state.user.currentUser);
   const initialModalState = {
     channelName: "",
@@ -17,6 +18,7 @@ const Channels = props => {
   const [modalInput, setModalInput] = useState(initialModalState);
   const dispatch = useDispatch();
 
+  //load channel data from database
   useEffect(() => {
     function onFirebaseUpdate(snap) {
       setChannels(currentChannelValue => {
@@ -27,7 +29,7 @@ const Channels = props => {
       .database()
       .ref("channels")
       .on("child_added", onFirebaseUpdate);
-    //remove listener whnen component unmounts
+    //remove listener when component unmounts
     return function() {
       firebase
         .database()
@@ -39,6 +41,7 @@ const Channels = props => {
   //setting active current channel
   const setCurrentChannel = useCallback(
     channel => {
+      setActiveChannelId(channel.id);
       dispatch({
         type: actionTypes.SET_CURRENT_CHANNEL,
         currentChannel: channel
@@ -47,6 +50,7 @@ const Channels = props => {
     [dispatch]
   );
 
+  //setchannel after render
   useEffect(
     () => {
       const firstChannel = channels[0];
@@ -72,6 +76,7 @@ const Channels = props => {
     setIsModalOpen(false);
   };
 
+  //add channel to database
   const addChannel = () => {
     //to generate unique id for every user
     const key = firebase
@@ -111,7 +116,7 @@ const Channels = props => {
     return false;
   };
 
-  //display channelList
+  //display channelList in userPanel
   let displayChannel = null;
   if (channels.length > 0) {
     displayChannel = channels.map(channel => {
@@ -121,6 +126,7 @@ const Channels = props => {
           name={channel.name}
           style={{ opacity: 0.7 }}
           onClick={() => setCurrentChannel(channel)}
+          active={channel.id === activeChannelId}
         >
           #{channel.name}
         </Menu.Item>
