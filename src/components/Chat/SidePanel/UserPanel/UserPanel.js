@@ -1,23 +1,18 @@
 import React from "react";
 import { Header, Grid, Icon, Dropdown, Image } from "semantic-ui-react";
-import firebase from "../../../../firebase";
+import firebase from "firebase/app";
 import { useSelector } from "react-redux";
 
 const UserPanel = () => {
-
-  const signedInUserName = useSelector(
-    state => state.user.currentUser.displayName
-  );
-  const userPhoto = useSelector(state => {
-    return state.user.currentUser.photoURL;
-  });
+  const signedInUser = useSelector(state => state.user.currentUser);
 
   const dropdownOptions = () => [
     {
       key: "user",
       text: (
         <span>
-          Signed in as <strong>{signedInUserName}</strong>
+          Signed in as{" "}
+          <strong>{signedInUser ? signedInUser.displayName : null}</strong>
         </span>
       ),
       disabled: true
@@ -28,14 +23,14 @@ const UserPanel = () => {
     },
     {
       key: "signout",
-      text: <span onClick={signOut}>Sign Out</span>
+      text: <span onClick={logOut}>Sign Out</span>
     }
   ];
-  const signOut = () => {
+  const logOut = () => {
     firebase
       .auth()
       .signOut()
-      .then(response => console.log(response))
+      .then(response => console.log("signedOut"))
       .catch(error => console.log(error));
   };
   return (
@@ -52,8 +47,12 @@ const UserPanel = () => {
             <Dropdown
               trigger={
                 <span>
-                  <Image src={userPhoto} spaced="right" avatar />
-                  {signedInUserName}
+                  <Image
+                    src={signedInUser ? signedInUser.photoURL : null}
+                    spaced="right"
+                    avatar
+                  />
+                  {signedInUser ? signedInUser.displayName : null}
                 </span>
               }
               options={dropdownOptions()}
@@ -63,7 +62,6 @@ const UserPanel = () => {
       </Grid.Column>
     </Grid>
   );
-
 };
 
 export default UserPanel;

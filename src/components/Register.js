@@ -13,9 +13,7 @@ import {
 import "semantic-ui-css/semantic.min.css";
 import { Link } from "react-router-dom";
 
-
 const Register = () => {
-
   const [submitError, setSubmitError] = useState("");
   const initialValues = {
     userName: "",
@@ -50,7 +48,6 @@ const Register = () => {
             displayName: input.userName,
             photoURL: `https://www.gravatar.com/avatar/{md5(createdUser.user.email)}?d=identicon`
           });
-
       })
       .catch(error => {
         console.log(error.message);
@@ -58,6 +55,7 @@ const Register = () => {
         //setLoading(false);
       });
   };
+
   //passs initial form values and callback function for submit Handler
   const { input, inputChangeHandler, submitHandler, errors } = useForm(
     initialValues,
@@ -150,6 +148,4 @@ const Register = () => {
   );
 };
 
-
 export default Register;
-

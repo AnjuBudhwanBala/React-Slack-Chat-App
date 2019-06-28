@@ -1,15 +1,17 @@
 import * as actionTypes from "../actionTypes/actionTypes";
 import { combineReducers } from "redux";
+
+//User Reducer
 const initialUserState = {
   currentUser: null,
   isLoading: true
 };
 
-const userReducer = (state = initialUserState, action) => {
-  switch (action.type) {
+const userReducer = (state = initialUserState, actions) => {
+  switch (actions.type) {
     case actionTypes.SET_USER:
       return {
-        currentUser: action.user,
+        currentUser: actions.currentUser,
         isLoading: false
       };
     case actionTypes.CLEAR_USER:
@@ -19,13 +21,33 @@ const userReducer = (state = initialUserState, action) => {
       };
     default:
       return {
-        ...initialUserState,
+        ...state,
         isLoading: false
       };
   }
 };
 
+//channel Reducer
+const initialChannelState = {
+  currentChannel: null
+};
+const channelReducer = (state = initialChannelState, actions) => {
+  switch (actions.type) {
+    case actionTypes.SET_CURRENT_CHANNEL:
+      return {
+        ...state,
+        currentChannel: actions.currentChannel
+      };
+
+    default:
+      return state;
+  }
+};
+
+//combine reducers
 const rootReducer = combineReducers({
-  user: userReducer
+  user: userReducer,
+  channel: channelReducer
 });
+
 export default rootReducer;
