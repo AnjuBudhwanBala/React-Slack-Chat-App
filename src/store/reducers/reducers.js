@@ -38,11 +38,7 @@ const channelReducer = (state = initialChannelState, actions) => {
         ...state,
         currentChannel: actions.currentChannel
       };
-    // case actionTypes.SET_FIRST_CHANNEL:
-    //   return {
-    //     ...state,
-    //     firstChannel: actions.firstChannel
-    //   };
+
     default:
       return state;
   }

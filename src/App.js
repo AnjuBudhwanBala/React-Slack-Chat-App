@@ -13,19 +13,22 @@ function App(props) {
   const isLoading = useSelector(state => state.user.isLoading);
 
   const dispatch = useDispatch();
-  useEffect(() => {
-    firebase.auth().onAuthStateChanged(user => {
-      if (user) {
-        props.history.push("/");
-        //store user in store
-        dispatch({ type: actionTypes.SET_USER, currentUser: user });
-      } else {
-        props.history.push("/login");
-        //clear User from store
-        dispatch({ type: actionTypes.CLEAR_USER });
-      }
-    });
-  }, []);
+  useEffect(
+    () => {
+      firebase.auth().onAuthStateChanged(user => {
+        if (user) {
+          props.history.push("/");
+          //store user in store
+          dispatch({ type: actionTypes.SET_USER, currentUser: user });
+        } else {
+          props.history.push("/login");
+          //clear User from store
+          dispatch({ type: actionTypes.CLEAR_USER });
+        }
+      });
+    },
+    [dispatch, props.history]
+  );
 
   return isLoading ? (
     <Spinner />

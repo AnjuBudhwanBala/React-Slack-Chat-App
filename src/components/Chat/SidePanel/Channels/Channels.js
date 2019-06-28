@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { Menu, Icon, Modal, Form, Input, Button } from "semantic-ui-react";
 import firebase from "firebase/app";
 import { useSelector, useDispatch } from "react-redux";
@@ -7,7 +7,7 @@ import * as actionTypes from "../../../../store/actionTypes/actionTypes";
 const Channels = props => {
   const [channels, setChannels] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [firstLoad, setFirstLoad] = useState(false);
+  const [firstLoad, setFirstLoad] = useState(true);
   const signedInUser = useSelector(state => state.user.currentUser);
   const initialModalState = {
     channelName: "",
@@ -18,35 +18,44 @@ const Channels = props => {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    let loadedChannels = [];
+    function onFirebaseUpdate(snap) {
+      setChannels(currentChannelValue => {
+        return currentChannelValue.concat(snap.val());
+      });
+    }
     firebase
       .database()
       .ref("channels")
-      .on("child_added", snap => {
-        loadedChannels.push(snap.val());
-        setChannels(channels.concat(loadedChannels));
-        setFirstLoad(true);
-      });
+      .on("child_added", onFirebaseUpdate);
+    //remove listener whnen component unmounts
+    return function() {
+      firebase
+        .database()
+        .ref("channels")
+        .off("child_added", onFirebaseUpdate);
+    };
   }, []);
 
-  //setCurrent Channel
-  const setCurrentChannel = channel => {
-    dispatch({
-      type: actionTypes.SET_CURRENT_CHANNEL,
-      currentChannel: channel
-    });
-  };
+  //setting active current channel
+  const setCurrentChannel = useCallback(
+    channel => {
+      dispatch({
+        type: actionTypes.SET_CURRENT_CHANNEL,
+        currentChannel: channel
+      });
+    },
+    [dispatch]
+  );
 
   useEffect(
     () => {
-      //set First channel onLoad
-
+      const firstChannel = channels[0];
       if (firstLoad && channels.length > 0) {
-        const firstChannel = channels[0];
         setCurrentChannel(firstChannel);
+        setFirstLoad(false);
       }
     },
-    [firstLoad]
+    [firstLoad, channels, setCurrentChannel]
   );
 
   const handleChange = e => {
