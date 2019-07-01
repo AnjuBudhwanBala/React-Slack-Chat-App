@@ -1,0 +1,13 @@
+{
+  "ExpandedNodes": [
+    "",
+    "\\public",
+    "\\src",
+    "\\src\\components",
+    "\\src\\components\\Chat",
+    "\\src\\components\\Chat\\Messages",
+    "\\src\\components\\Chat\\Messages\\Message"
+  ],
+  "SelectedNode": "\\src\\components\\Chat\\Messages\\Messages.js",
+  "PreviewInSolutionExplorer": true
+}
