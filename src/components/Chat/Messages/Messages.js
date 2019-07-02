@@ -6,7 +6,7 @@ import Message from "./Message/Message";
 import classes from "./Messages.module.css";
 import firebase from "firebase/app";
 import { useSelector } from "react-redux";
-import { join } from "path";
+
 
 const Messages = () => {
   const [messages, setMessages] = useState([]);
@@ -14,13 +14,21 @@ const Messages = () => {
   const user = useSelector(state => state.user.currentUser);
   const currentChannel = useSelector(state => state.channel.currentChannel);
 
+
+
   useEffect(
     () => {
-     const loadedMessages = [];
-       function firebaseMessagesLoader(snap) {
-           loadedMessages.push(snap.val())
-           setMessages(loadedMessages)
-       }
+      const loadedMessages = [];
+
+      function firebaseMessagesLoader(snap) {
+        loadedMessages.push(snap.val());
+
+        //To load messages when loadedMessages are ready
+        setTimeout(() => {
+          setMessages(loadedMessages)
+        }, 100);
+
+      }
 
       if (currentChannel) {
         firebase
@@ -29,14 +37,14 @@ const Messages = () => {
           .child(currentChannel.id)
           .on("child_added", firebaseMessagesLoader);
       }
-      return function() {
+      return function () {
         firebase
           .database()
           .ref("channels")
           .off("child_added", firebaseMessagesLoader);
       };
     },
-    [currentChannel,setMessages]
+    [currentChannel, setMessages]
   );
 
   //display messages from database
