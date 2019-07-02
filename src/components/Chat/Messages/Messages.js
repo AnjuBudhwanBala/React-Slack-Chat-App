@@ -47,6 +47,7 @@ const Messages = () => {
     [currentChannel, setMessages]
   );
 
+
   //display messages from database
   const displayMessages = () =>
     messages.length > 0 &&

@@ -99,6 +99,7 @@ const Channels = props => {
       .ref("channels")
       .child(key)
       .set(newChannel)
+
       .then(response => {
         closeModal();
         setModalInput(initialModalState);
