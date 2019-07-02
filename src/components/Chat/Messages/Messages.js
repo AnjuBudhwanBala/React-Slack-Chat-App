@@ -23,7 +23,7 @@ const Messages = () => {
       function firebaseMessagesLoader(snap) {
         loadedMessages.push(snap.val());
 
-        //To load messages when loadedMessages are ready
+        //wait until  loadedMessages are ready
         setTimeout(() => {
           setMessages(loadedMessages)
         }, 100);
@@ -46,6 +46,7 @@ const Messages = () => {
     },
     [currentChannel, setMessages]
   );
+
 
   //display messages from database
   const displayMessages = () =>

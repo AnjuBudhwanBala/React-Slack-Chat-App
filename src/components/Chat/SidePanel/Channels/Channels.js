@@ -29,8 +29,9 @@ const Channels = props => {
       .database()
       .ref("channels")
       .on("child_added", onFirebaseUpdate);
+
     //remove listener when component unmounts
-    return function() {
+    return function () {
       firebase
         .database()
         .ref("channels")
@@ -98,6 +99,7 @@ const Channels = props => {
       .ref("channels")
       .child(key)
       .set(newChannel)
+
       .then(response => {
         closeModal();
         setModalInput(initialModalState);

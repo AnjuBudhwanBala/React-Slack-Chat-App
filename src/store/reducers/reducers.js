@@ -1,3 +1,4 @@
+
 import * as actionTypes from "../actionTypes/actionTypes";
 import { combineReducers } from "redux";
 
@@ -44,10 +45,14 @@ const channelReducer = (state = initialChannelState, actions) => {
   }
 };
 
+
+
+
 //combine reducers
 const rootReducer = combineReducers({
   user: userReducer,
-  channel: channelReducer
+  channel: channelReducer,
+
 });
 
 export default rootReducer;
