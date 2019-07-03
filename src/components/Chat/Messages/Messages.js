@@ -10,6 +10,11 @@ import { useSelector } from "react-redux";
 
 const Messages = () => {
   const [messages, setMessages] = useState([]);
+  const [uniqueUsers, setUniqueUsers] = useState("")
+  const [searchInput, setSearchInput] = useState("")
+  const [searchResult, setSearchResult] = useState([])
+  const [searchLoading, setSearchLoading] = useState(false)
+
 
   const user = useSelector(state => state.user.currentUser);
   const currentChannel = useSelector(state => state.channel.currentChannel);
@@ -27,6 +32,9 @@ const Messages = () => {
         setTimeout(() => {
           setMessages(loadedMessages)
         }, 100);
+
+        //count unique users
+        countUniqueUsers(loadedMessages)
 
       }
 
@@ -49,17 +57,63 @@ const Messages = () => {
 
 
   //display messages from database
-  const displayMessages = () =>
+  const displayMessages = (messages) =>
     messages.length > 0 &&
     messages.map(message => (
       <Message key={message.timestamp} message={message} user={user} />
     ));
+
+
+  // count Number of Unique Users
+  const countUniqueUsers = (loadedMessages) => {
+    const uniqueUsers = loadedMessages.reduce((acc, messg) => {
+      if (!acc.includes(messg.user.name)) {
+        acc.push(messg.user.name)
+      }
+      return acc;
+
+    }, [])
+    const plural = (uniqueUsers.length === 0 || uniqueUsers.length === 1) ? "user" : "users"
+    const numberOfUniqueUsers = `${uniqueUsers.length} ${plural}`
+    setUniqueUsers(numberOfUniqueUsers)
+  }
+
+  //search messages or Username
+  const handleSearch = (event) => {
+
+    //store search Value
+    setSearchInput(event.target.value)
+    setSearchLoading(true)
+    //copy of messages
+    setSearchResult(messages)
+
+    if (searchResult.length > 0) {
+      const regex = new RegExp(searchInput, "gi")
+
+      const searchOutput = searchResult.reduce((acc, message) => {
+
+        if ((message.content && message.content.message.match(regex)) ||
+          message.user.name.match(regex)) {
+          acc.push(message);
+        }
+        return acc;
+      }, []);
+
+      setSearchResult(searchOutput)
+      setTimeout(() => {
+        setSearchLoading(false)
+      }, 1000);
+    }
+  }
+
+
+
   return (
     <>
-      <MessagesHeader />
+      <MessagesHeader uniqueUsers={uniqueUsers} change={handleSearch} searchValue={searchInput} searchLoading={searchLoading} />
       <Segment>
         <Comment.Group className={classes.Messages}>
-          {displayMessages()}
+          {searchInput ? displayMessages(searchResult) : displayMessages(messages)}
         </Comment.Group>
       </Segment>
       <MessageForm user={user} currentChannel={currentChannel} />
