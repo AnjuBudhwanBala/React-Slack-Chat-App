@@ -16,7 +16,7 @@ const MessageForm = props => {
 
   const [inputMessage, setInputMessage] = useState(initialState);
   const [errors, setErrors] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const [modal, setModal] = useState(false)
   const [uploadTask, setUploadTask] = useState("")
   const [percentUploaded, setPercentUploaded] = useState(0);
@@ -47,7 +47,7 @@ const MessageForm = props => {
     } else {
       message["content"] = inputMessage;
     }
-    console.log(message)
+
     return message;
   };
 
@@ -56,6 +56,7 @@ const MessageForm = props => {
   const sendMessage = e => {
     e.preventDefault();
     if (inputMessage.message) {
+      setLoading(true)
       firebase
         .database()
         .ref("messages")
@@ -157,6 +158,7 @@ const MessageForm = props => {
       <Button.Group icon widths="2">
         <Button
           onClick={sendMessage}
+          disabled={loading}
           color="orange"
           content="Add Reply"
           labelPosition="left"
@@ -164,6 +166,7 @@ const MessageForm = props => {
         />
         <Button
           color="teal"
+          disabled={uploadState === "uploading"}
           content="Upload Media"
           labelPosition="right"
           icon="cloud upload"

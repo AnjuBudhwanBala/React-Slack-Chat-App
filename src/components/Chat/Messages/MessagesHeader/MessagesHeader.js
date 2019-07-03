@@ -1,25 +1,32 @@
 import React from "react";
 import { Header, Segment, Input, Icon } from "semantic-ui-react";
+import { useSelector } from "react-redux";
 
-const MessagesHeader = () => {
+const MessagesHeader = (props) => {
+
+  const currentChannel = useSelector(state => state.channel.currentChannel);
+
   return (
     <Segment clearing>
       {/* Channel Title */}
       <Header fluid="true" as="h2" floated="left" style={{ marginBottom: 0 }}>
         <span>
-          Channel
+          {currentChannel ? currentChannel.name : "Channel"}
           <Icon name={"star outline"} color="black" />
         </span>
-        <Header.Subheader>2 Users</Header.Subheader>
+        <Header.Subheader>{props.uniqueUsers}</Header.Subheader>
       </Header>
 
       {/* Channel Search Input */}
       <Header floated="right">
         <Input
+          loading={props.searchLoading}
+          onChange={props.change}
           size="mini"
           icon="search"
           name="searchTerm"
           placeholder="Search Messages"
+          value={props.searchValue}
         />
       </Header>
     </Segment>
