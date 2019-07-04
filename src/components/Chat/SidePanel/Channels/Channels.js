@@ -31,7 +31,7 @@ const Channels = props => {
       .on("child_added", onFirebaseUpdate);
 
     //remove listener when component unmounts
-    return function () {
+    return function() {
       firebase
         .database()
         .ref("channels")
@@ -138,7 +138,7 @@ const Channels = props => {
 
   return (
     <>
-      <Menu.Menu style={{ paddingBottom: "2em" }}>
+      <Menu.Menu className="menu">
         <Menu.Item>
           <span>
             <Icon name="exchange" />
