@@ -1,4 +1,3 @@
-
 import * as actionTypes from "../actionTypes/actionTypes";
 import { combineReducers } from "redux";
 
@@ -30,7 +29,8 @@ const userReducer = (state = initialUserState, actions) => {
 
 //channel Reducer
 const initialChannelState = {
-  currentChannel: null
+  currentChannel: null,
+  isPrivate: false
 };
 const channelReducer = (state = initialChannelState, actions) => {
   switch (actions.type) {
@@ -39,20 +39,25 @@ const channelReducer = (state = initialChannelState, actions) => {
         ...state,
         currentChannel: actions.currentChannel
       };
-
+    case actionTypes.SET_ACTIVE_CHANNEL:
+      return {
+        ...state,
+        activeChannel: actions.activeChannel
+      };
+    case actionTypes.SET_PRIVATE_CHANNEL:
+      return {
+        ...state,
+        privateChannel: actions.privateChannel
+      };
     default:
       return state;
   }
 };
 
-
-
-
 //combine reducers
 const rootReducer = combineReducers({
   user: userReducer,
-  channel: channelReducer,
-
+  channel: channelReducer
 });
 
 export default rootReducer;
