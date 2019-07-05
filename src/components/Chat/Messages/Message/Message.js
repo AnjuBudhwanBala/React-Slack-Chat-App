@@ -9,20 +9,24 @@ const isOwnMessage = (message, user) => {
   return message.user.id === user.uid ? "Message_self" : "null";
 };
 
-const isImage = (message) => {
-
-  return message.hasOwnProperty("image") && !message.hasOwnProperty("content")
-}
-const Message = props => (
-  <Comment>
-    <Comment.Avatar src={props.message.user.avatar} />
-    <Comment.Content className={isOwnMessage(props.message, props.user)}>
-      <Comment.Author as="a">{props.message.user.name}</Comment.Author>
-      <Comment.Metadata>{timeNow(props.message.timestamp)}</Comment.Metadata>
-      {isImage(props.message) ? <Image src={props.message.image} className="Message_Image" /> :
-        <Comment.Text>{props.message.content.message}</Comment.Text>}
-    </Comment.Content>
-  </Comment>
-);
+const isImage = message => {
+  return message.hasOwnProperty("image") && !message.hasOwnProperty("content");
+};
+const Message = props => {
+  return props.message ? (
+    <Comment>
+      <Comment.Avatar src={props.message.user.avatar} />
+      <Comment.Content className={isOwnMessage(props.message, props.user)}>
+        <Comment.Author as="a">{props.message.user.name}</Comment.Author>
+        <Comment.Metadata>{timeNow(props.message.timestamp)}</Comment.Metadata>
+        {isImage(props.message) ? (
+          <Image src={props.message.image} className="Message_Image" />
+        ) : (
+          <Comment.Text>{props.message.content.message}</Comment.Text>
+        )}
+      </Comment.Content>
+    </Comment>
+  ) : null;
+};
 
 export default Message;

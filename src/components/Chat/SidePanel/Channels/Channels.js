@@ -47,6 +47,10 @@ const Channels = props => {
         type: actionTypes.SET_CURRENT_CHANNEL,
         currentChannel: channel
       });
+      dispatch({
+        type: actionTypes.SET_PRIVATE_CHANNEL,
+        privateChannel: false
+      });
     },
     [dispatch]
   );
