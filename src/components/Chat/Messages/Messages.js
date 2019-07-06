@@ -29,28 +29,32 @@ const Messages = () => {
   );
   useEffect(
     () => {
+      const ref = getMessagesRef();
       const loadedMessages = [];
-
       function firebaseMessagesLoader(snap) {
-        if (snap.exists()) {
-          loadedMessages.push(snap.val());
-          setTimeout(() => {
-            setMessages(loadedMessages);
-          });
-        } else {
-          setMessages([]);
-        }
-
+        loadedMessages.push(snap.val());
+        setTimeout(() => {
+          setMessages(loadedMessages);
+        });
         //count unique users
         countUniqueUsers(loadedMessages);
       }
 
-      if (currentChannel) {
-        const ref = getMessagesRef();
-
-        ref.child(currentChannel.id).on("child_added", firebaseMessagesLoader);
+      //check if there is child_added
+      function onChidAddedMessagesLoader(snapshot) {
+        if (snapshot.exists()) {
+          ref
+            .child(currentChannel.id)
+            .on("child_added", firebaseMessagesLoader);
+        } else {
+          setMessages([]);
+        }
       }
 
+      if (currentChannel) {
+        ref.child(currentChannel.id).on("value", onChidAddedMessagesLoader);
+        //ref.child(currentChannel.id).on("child_added", firebaseMessagesLoader);
+      }
       return function() {
         firebase
           .database()
