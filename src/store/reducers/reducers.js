@@ -39,15 +39,11 @@ const channelReducer = (state = initialChannelState, actions) => {
         ...state,
         currentChannel: actions.currentChannel
       };
-    case actionTypes.SET_ACTIVE_CHANNEL:
-      return {
-        ...state,
-        activeChannel: actions.activeChannel
-      };
+
     case actionTypes.SET_PRIVATE_CHANNEL:
       return {
         ...state,
-        privateChannel: actions.privateChannel
+        isPrivate: actions.privateChannel
       };
     default:
       return state;

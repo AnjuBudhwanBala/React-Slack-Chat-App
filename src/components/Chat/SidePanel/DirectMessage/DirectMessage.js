@@ -6,7 +6,11 @@ import * as actionTypes from "../../../../store/actionTypes/actionTypes";
 
 const DirectMessage = () => {
   const [users, setUsers] = useState([]);
+
+  const [activeChannel, setActiveChannel] = useState("");
+
   const currentUser = useSelector(state => state.user.currentUser);
+
   const dispatch = useDispatch();
 
   const addListeners = useCallback(currentUserId => {
@@ -27,6 +31,7 @@ const DirectMessage = () => {
           }, 1000);
         }
       });
+
     //set presence true in database
     firebase
       .database()
@@ -75,6 +80,11 @@ const DirectMessage = () => {
     [currentUser, addListeners]
   );
 
+  //setDirectChannel
+  const setDirectChannel = user => {
+    setActiveChannel(user.uid);
+  };
+
   //changeChannel
   const changeChannel = user => {
     if (currentUser) {
@@ -87,14 +97,16 @@ const DirectMessage = () => {
         id: getChannelId(),
         name: user.displayName
       };
+
       dispatch({
-        type: actionTypes.SET_ACTIVE_CHANNEL,
-        activeChannel: channelData
+        type: actionTypes.SET_CURRENT_CHANNEL,
+        currentChannel: channelData
       });
       dispatch({
         type: actionTypes.SET_PRIVATE_CHANNEL,
         privateChannel: true
       });
+      setDirectChannel(user);
     }
   };
 
@@ -112,6 +124,7 @@ const DirectMessage = () => {
             key={user.uid}
             style={{ opacity: 0.7, fontStyle: "italic" }}
             onClick={() => changeChannel(user)}
+            active={activeChannel === user.uid}
           >
             <Icon
               name="circle"
