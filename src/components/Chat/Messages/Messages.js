@@ -33,28 +33,21 @@ const Messages = () => {
       const loadedMessages = [];
       function firebaseMessagesLoader(snap) {
         loadedMessages.push(snap.val());
-        setTimeout(() => {
-          setMessages(loadedMessages);
-        });
+        console.log(loadedMessages);
+        setMessages([...loadedMessages]);
+
         //count unique users
         countUniqueUsers(loadedMessages);
       }
-
-      //check if there is child_added
-      function onChidAddedMessagesLoader(snapshot) {
-        if (snapshot.exists()) {
+      if (currentChannel) {
+        ref.child(currentChannel.id).once("value", snap => {
+          setMessages([]);
           ref
             .child(currentChannel.id)
             .on("child_added", firebaseMessagesLoader);
-        } else {
-          setMessages([]);
-        }
+        });
       }
 
-      if (currentChannel) {
-        ref.child(currentChannel.id).on("value", onChidAddedMessagesLoader);
-        //ref.child(currentChannel.id).on("child_added", firebaseMessagesLoader);
-      }
       return function() {
         firebase
           .database()
@@ -62,7 +55,7 @@ const Messages = () => {
           .off("child_added", firebaseMessagesLoader);
       };
     },
-    [currentChannel, setMessages, isPrivate, getMessagesRef]
+    [setMessages, currentChannel, isPrivate, getMessagesRef]
   );
 
   //display messages from database
@@ -71,6 +64,7 @@ const Messages = () => {
     messages.map(message => (
       <Message key={message.timestamp} message={message} user={user} />
     ));
+
   // count Number of Unique Users
   const countUniqueUsers = loadedMessages => {
     const uniqueUsers = loadedMessages.reduce((acc, messg) => {

@@ -6,6 +6,7 @@ import * as actionTypes from "../../../../store/actionTypes/actionTypes";
 
 const DirectMessage = () => {
   const [users, setUsers] = useState([]);
+
   const [activeChannel, setActiveChannel] = useState("");
 
   const currentUser = useSelector(state => state.user.currentUser);
@@ -30,6 +31,7 @@ const DirectMessage = () => {
           }, 1000);
         }
       });
+
     //set presence true in database
     firebase
       .database()
@@ -95,6 +97,7 @@ const DirectMessage = () => {
         id: getChannelId(),
         name: user.displayName
       };
+
       dispatch({
         type: actionTypes.SET_CURRENT_CHANNEL,
         currentChannel: channelData

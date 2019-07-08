@@ -54,9 +54,9 @@ const MessageForm = props => {
   //send Text Messages
   const sendMessage = e => {
     e.preventDefault();
+    const ref = props.getMessagesRef();
     if (inputMessage.message) {
       setLoading(true);
-      const ref = props.getMessagesRef();
       ref
         .child(props.currentChannel.id)
         .push()
@@ -65,6 +65,7 @@ const MessageForm = props => {
           setLoading(false);
           setInputMessage(initialState);
           setErrors([]);
+          console.log("sent");
         })
         .catch(err => {
           setLoading(false);
