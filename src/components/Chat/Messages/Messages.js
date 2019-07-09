@@ -33,7 +33,6 @@ const Messages = () => {
       const loadedMessages = [];
       function firebaseMessagesLoader(snap) {
         loadedMessages.push(snap.val());
-        console.log(loadedMessages);
         setMessages([...loadedMessages]);
 
         //count unique users
