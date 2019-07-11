@@ -40,7 +40,8 @@ const MessageForm = props => {
         id: props.user.uid,
         name: props.user.displayName,
         avatar: props.user.photoURL
-      }
+      },
+      status: "unread"
     };
     if (fileUrl !== null) {
       message["image"] = fileUrl;
@@ -65,7 +66,6 @@ const MessageForm = props => {
           setLoading(false);
           setInputMessage(initialState);
           setErrors([]);
-          console.log("sent");
         })
         .catch(err => {
           setLoading(false);

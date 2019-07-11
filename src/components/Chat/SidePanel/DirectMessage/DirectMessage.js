@@ -15,15 +15,19 @@ const DirectMessage = () => {
   }
 
   //change UI online/offline status
-  const addStatusToUser = (snapKey, loadedUsers, connected = true) => {
-    const updatedUsers = loadedUsers.reduce((acc, user) => {
-      if (user.key === snapKey) {
-        user["status"] = `${connected ? "online" : "offline"}`;
-      }
-      return acc.concat(user);
-    }, []);
-    setUsers(updatedUsers);
-  };
+  const addStatusToUser = useCallback(
+    (snapKey, loadedUsers, connected = true) => {
+      const updatedUsers = loadedUsers.reduce((acc, user) => {
+        if (user.key === snapKey) {
+          user["status"] = `${connected ? "online" : "offline"}`;
+        }
+        return acc.concat(user);
+      }, []);
+      setUsers(updatedUsers);
+    },
+    []
+  );
+
   //callback funtion from useEffect
   const addListeners = useCallback(
     () => {
@@ -60,7 +64,7 @@ const DirectMessage = () => {
         addStatusToUser(snap.key, loadedUsers, false);
       });
     },
-    [currentUserId]
+    [currentUserId, addStatusToUser]
   );
 
   //useEffect
@@ -73,18 +77,13 @@ const DirectMessage = () => {
     [currentUserId, addListeners]
   );
 
-  //setDirectChannel
-  const setDirectChannel = user => {
-    setActiveChannel(user.uid);
-  };
-
   //changeChannel
   const changeChannel = user => {
     if (currentUserId) {
       const getChannelId = () => {
-        return user.uid > currentUserId
-          ? `${user.uid}/${currentUserId}`
-          : `${currentUserId}/${user.uid}`;
+        return user.key > currentUserId
+          ? `${user.key}/${currentUserId}`
+          : `${currentUserId}/${user.key}`;
       };
       const channelData = {
         id: getChannelId(),
@@ -99,7 +98,8 @@ const DirectMessage = () => {
         type: actionTypes.SET_PRIVATE_CHANNEL,
         privateChannel: true
       });
-      setDirectChannel(user);
+      //set Active channel
+      setActiveChannel(user.key);
     }
   };
 
@@ -117,7 +117,7 @@ const DirectMessage = () => {
             key={user.key}
             style={{ opacity: 0.7, fontStyle: "italic" }}
             onClick={() => changeChannel(user)}
-            active={activeChannel === user.uid}
+            active={activeChannel === user.key}
           >
             <Icon
               name="circle"

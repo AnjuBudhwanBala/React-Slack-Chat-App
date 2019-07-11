@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Header, Segment, Input, Icon } from "semantic-ui-react";
 import { useSelector } from "react-redux";
 
@@ -12,7 +12,16 @@ const MessagesHeader = props => {
       <Header fluid="true" as="h2" floated="left" style={{ marginBottom: 0 }}>
         <span>
           {currentChannel ? currentChannel.name : "Channel"}
-          {isPrivate ? "@" : <Icon name={"star outline"} color="black" />}
+          {isPrivate ? (
+            "@"
+          ) : (
+            <Icon
+              name={props.isChannelStar ? "star" : "star outline"}
+              color={props.isChannelStar ? "yellow" : "black"}
+              onClick={() => props.click(currentChannel.name)}
+              id={currentChannel ? currentChannel.name : null}
+            />
+          )}
         </span>
         <Header.Subheader>{props.uniqueUsers}</Header.Subheader>
       </Header>
