@@ -20,6 +20,16 @@ const Messages = () => {
   //get boolean value
   const isPrivate = useSelector(state => state.channel.isPrivate);
 
+  let currentChannelName = null;
+
+  if (currentChannel) {
+    currentChannelName = currentChannel.name;
+  }
+
+  const [star, isStar] = useState({
+    [currentChannelName]: true
+  });
+
   //getMessagesRef
   const getMessagesRef = useCallback(
     () => {
@@ -152,11 +162,15 @@ const Messages = () => {
     }
   };
 
-  //handleStar
+  //toggle star handler
   const handleStar = id => {
-    console.log("clicked");
+    const starStatus = star[id];
+    console.log("star", star);
+    isStar(star => ({ ...star, [id]: !starStatus }));
+    isChannelStar ? setIsChannelStar(false) : setIsChannelStar(true);
   };
 
+  console.log(messages);
   return (
     <>
       <MessagesHeader

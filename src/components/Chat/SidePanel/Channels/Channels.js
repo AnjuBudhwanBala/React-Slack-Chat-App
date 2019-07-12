@@ -143,7 +143,7 @@ const Channels = props => {
       );
     });
   }
-
+  console.log(channels);
   return (
     <>
       <Menu.Menu className="menu">
