@@ -10,6 +10,7 @@ const Channels = props => {
   const [firstLoad, setFirstLoad] = useState(true);
   const [activeChannelId, setActiveChannelId] = useState("");
   const signedInUser = useSelector(state => state.user.currentUser);
+
   const initialModalState = {
     channelName: "",
     channelDetails: ""
@@ -19,28 +20,31 @@ const Channels = props => {
   const dispatch = useDispatch();
 
   //load channel data from database
-  useEffect(() => {
-    function onFirebaseUpdate(snap) {
-      setChannels(currentChannelValue => {
-        return currentChannelValue.concat(snap.val());
-      });
-    }
-    firebase
-      .database()
-      .ref("channels")
-      .on("child_added", onFirebaseUpdate);
-
-    //remove listener when component unmounts
-    return function() {
+  useEffect(
+    () => {
+      function onFirebaseUpdate(snap) {
+        setChannels(currentChannelValue => {
+          return currentChannelValue.concat(snap.val());
+        });
+      }
       firebase
         .database()
         .ref("channels")
-        .off("child_added", onFirebaseUpdate);
-    };
-  }, []);
+        .on("child_added", onFirebaseUpdate);
+
+      //remove listener when component unmounts
+      return function() {
+        firebase
+          .database()
+          .ref("channels")
+          .off("child_added", onFirebaseUpdate);
+      };
+    },
+    [signedInUser]
+  );
 
   //setting active current channel
-  const setCurrentChannel = useCallback(
+  const changeChannel = useCallback(
     channel => {
       setActiveChannelId(channel.id);
       dispatch({
@@ -60,11 +64,11 @@ const Channels = props => {
     () => {
       const firstChannel = channels[0];
       if (firstLoad && channels.length > 0) {
-        setCurrentChannel(firstChannel);
+        changeChannel(firstChannel);
         setFirstLoad(false);
       }
     },
-    [firstLoad, channels, setCurrentChannel]
+    [firstLoad, channels, changeChannel]
   );
 
   const handleChange = e => {
@@ -131,7 +135,7 @@ const Channels = props => {
           key={channel.id}
           name={channel.name}
           style={{ opacity: 0.7 }}
-          onClick={() => setCurrentChannel(channel)}
+          onClick={() => changeChannel(channel)}
           active={channel.id === activeChannelId}
         >
           #{channel.name}
@@ -139,7 +143,7 @@ const Channels = props => {
       );
     });
   }
-
+  console.log(channels);
   return (
     <>
       <Menu.Menu className="menu">

@@ -13,12 +13,24 @@ const Messages = () => {
   const [searchInput, setSearchInput] = useState("");
   const [searchResult, setSearchResult] = useState([]);
   const [searchLoading, setSearchLoading] = useState(false);
+  const [isChannelStar, setIsChannelStar] = useState(false);
 
   const user = useSelector(state => state.user.currentUser);
   const currentChannel = useSelector(state => state.channel.currentChannel);
   //get boolean value
   const isPrivate = useSelector(state => state.channel.isPrivate);
 
+  let currentChannelName = null;
+
+  if (currentChannel) {
+    currentChannelName = currentChannel.name;
+  }
+
+  const [star, isStar] = useState({
+    [currentChannelName]: true
+  });
+
+  //getMessagesRef
   const getMessagesRef = useCallback(
     () => {
       const privateMessagesRef = firebase.database().ref("privateMessages");
@@ -27,18 +39,52 @@ const Messages = () => {
     },
     [isPrivate]
   );
+
+  //starChannel to update userData in database
+  const starChannel = useCallback(
+    () => {
+      if (isChannelStar) {
+        const data = {
+          name: currentChannel.name,
+          details: currentChannel.details,
+          createdBy: {
+            name: user.displayName,
+            avatar: user.photoURL
+          }
+        };
+        firebase
+          .database()
+          .ref("users")
+          .child(`${user.uid}/starred/${currentChannel.id}`)
+          .update(data);
+      } else {
+        console.log("removed");
+        firebase
+          .database()
+          .ref("users")
+          .child(`${user.uid}/starred/${currentChannel.id}`)
+          .remove();
+      }
+    },
+    [currentChannel, user, isChannelStar]
+  );
+
   useEffect(
     () => {
+      //to callback function starChannel for updating database
+      if (isChannelStar) {
+        starChannel();
+      }
+
       const ref = getMessagesRef();
       const loadedMessages = [];
       function firebaseMessagesLoader(snap) {
         loadedMessages.push(snap.val());
-        console.log(loadedMessages);
         setMessages([...loadedMessages]);
-
         //count unique users
         countUniqueUsers(loadedMessages);
       }
+      //to load mesages on UI
       if (currentChannel) {
         ref.child(currentChannel.id).once("value", snap => {
           setMessages([]);
@@ -55,7 +101,15 @@ const Messages = () => {
           .off("child_added", firebaseMessagesLoader);
       };
     },
-    [setMessages, currentChannel, isPrivate, getMessagesRef]
+    [
+      setMessages,
+      currentChannel,
+      isPrivate,
+      getMessagesRef,
+      starChannel,
+      isChannelStar,
+      user
+    ]
   );
 
   //display messages from database
@@ -73,6 +127,8 @@ const Messages = () => {
       }
       return acc;
     }, []);
+
+    //plural
     const plural =
       uniqueUsers.length === 0 || uniqueUsers.length === 1 ? "user" : "users";
     const numberOfUniqueUsers = `${uniqueUsers.length} ${plural}`;
@@ -89,7 +145,6 @@ const Messages = () => {
 
     if (searchResult.length > 0) {
       const regex = new RegExp(searchInput, "gi");
-
       const searchOutput = searchResult.reduce((acc, message) => {
         if (
           (message.content && message.content.message.match(regex)) ||
@@ -107,6 +162,15 @@ const Messages = () => {
     }
   };
 
+  //toggle star handler
+  const handleStar = id => {
+    const starStatus = star[id];
+    console.log("star", star);
+    isStar(star => ({ ...star, [id]: !starStatus }));
+    isChannelStar ? setIsChannelStar(false) : setIsChannelStar(true);
+  };
+
+  console.log(messages);
   return (
     <>
       <MessagesHeader
@@ -114,6 +178,8 @@ const Messages = () => {
         change={handleSearch}
         searchValue={searchInput}
         searchLoading={searchLoading}
+        isChannelStar={isChannelStar}
+        click={id => handleStar(id)}
       />
       <Segment>
         <Comment.Group className={classes.Messages}>

@@ -6,92 +6,84 @@ import * as actionTypes from "../../../../store/actionTypes/actionTypes";
 
 const DirectMessage = () => {
   const [users, setUsers] = useState([]);
-
   const [activeChannel, setActiveChannel] = useState("");
-
-  const currentUser = useSelector(state => state.user.currentUser);
-
   const dispatch = useDispatch();
+  const currentUser = useSelector(state => state.user.currentUser);
+  let currentUserId = null;
+  if (currentUser) {
+    currentUserId = currentUser.uid;
+  }
 
-  const addListeners = useCallback(currentUserId => {
-    //to get all the users which are not logged in
-    const loadedUsers = [];
-    firebase
-      .database()
-      .ref("users")
-      .on("child_added", snap => {
-        if (currentUserId !== snap.key) {
-          let user = snap.val();
-
-          user["uid"] = snap.key;
-          user["status"] = "offline";
-          loadedUsers.push(user);
-          setTimeout(() => {
-            setUsers(loadedUsers);
-          }, 1000);
+  //change UI online/offline status
+  const addStatusToUser = useCallback(
+    (snapKey, loadedUsers, connected = true) => {
+      const updatedUsers = loadedUsers.reduce((acc, user) => {
+        if (user.key === snapKey) {
+          user["status"] = `${connected ? "online" : "offline"}`;
         }
-      });
-
-    //set presence true in database
-    firebase
-      .database()
-      .ref(".info/connected")
-      .on("value", snap => {
-        if (snap.val() === true) {
-          const ref = firebase
-            .database()
-            .ref("presence")
-            .child(currentUserId);
-          ref.set(true);
-          // When I disconnect, remove this device
-          ref.onDisconnect().remove(err => {
-            if (err !== null) {
-              console.error(err);
-            }
-          });
-        }
-      });
-    //to setuser status online/offline
-
-    firebase
-      .database()
-      .ref("presence")
-      .on("child_added", snap => {
-        if (currentUserId === snap.key) {
-          setUsers(users => ({ ...users, [users.status]: "online" }));
-        }
-      });
-    firebase
-      .database()
-      .ref("presence")
-      .on("child_removed", snap => {
-        if (currentUserId !== snap.key) {
-          console.log(snap.key);
-        }
-      });
-  }, []);
-
-  useEffect(
-    () => {
-      if (currentUser) {
-        addListeners(currentUser.uid);
-      }
+        return acc.concat(user);
+      }, []);
+      setUsers(updatedUsers);
     },
-    [currentUser, addListeners]
+    []
   );
 
-  //setDirectChannel
-  const setDirectChannel = user => {
-    setActiveChannel(user.uid);
-  };
+  //callback funtion from useEffect
+  const addListeners = useCallback(
+    () => {
+      const usersRef = firebase.database().ref("users");
+      const connectedRef = firebase.database().ref(".info/connected");
+      // This is where we will store data about being online/offline.
+      const userStatusDatabaseRef = firebase.database().ref("/status/");
+
+      //to load all the users in our database except the login User
+      const loadedUsers = [];
+      usersRef.on("child_added", snap => {
+        if (currentUserId !== snap.key) {
+          let user = snap.val();
+          user["key"] = snap.key;
+          user["status"] = "offline";
+          loadedUsers.push(user);
+        }
+        setUsers([...loadedUsers]);
+      });
+
+      connectedRef.on("value", function(snapshot) {
+        if (snapshot.val() === true) {
+          const ref = userStatusDatabaseRef.child(currentUserId);
+          // When I disconnect, remove this device
+          ref.onDisconnect().remove();
+          // We're connected (or reconnected)
+          ref.set(true);
+        }
+      });
+      userStatusDatabaseRef.on("child_added", snap => {
+        addStatusToUser(snap.key, loadedUsers);
+      });
+      userStatusDatabaseRef.off("child_added", snap => {
+        addStatusToUser(snap.key, loadedUsers, false);
+      });
+    },
+    [currentUserId, addStatusToUser]
+  );
+
+  //useEffect
+  useEffect(
+    () => {
+      if (currentUserId) {
+        addListeners(currentUserId);
+      }
+    },
+    [currentUserId, addListeners]
+  );
 
   //changeChannel
   const changeChannel = user => {
-    if (currentUser) {
+    if (currentUserId) {
       const getChannelId = () => {
-        return user.uid > currentUser.uid
-          ? `${user.uid}/${currentUser.uid}`
-          : `${currentUser.uid}/${user.uid}`;
+        return user.key > currentUserId
+          ? `${user.key}/${currentUserId}`
+          : `${currentUserId}/${user.key}`;
       };
       const channelData = {
         id: getChannelId(),
@@ -106,7 +98,8 @@ const DirectMessage = () => {
         type: actionTypes.SET_PRIVATE_CHANNEL,
         privateChannel: true
       });
-      setDirectChannel(user);
+      //set Active channel
+      setActiveChannel(user.key);
     }
   };
 
@@ -121,10 +114,10 @@ const DirectMessage = () => {
       {users.length > 0 &&
         users.map(user => (
           <Menu.Item
-            key={user.uid}
+            key={user.key}
             style={{ opacity: 0.7, fontStyle: "italic" }}
             onClick={() => changeChannel(user)}
-            active={activeChannel === user.uid}
+            active={activeChannel === user.key}
           >
             <Icon
               name="circle"
